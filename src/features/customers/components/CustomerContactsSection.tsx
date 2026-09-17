@@ -11,23 +11,27 @@ type Props = {
 
 export default function CustomerContactsSection({ form, readOnly = false }: Props) {
   const [isOpen, setIsOpen] = useState(false);
-
   const [draft, setDraft] = useState({
     name: "",
     title: "",
     phone: "",
     email: "",
   });
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
   const { control } = form;
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, update, remove } = useFieldArray({
     control,
     name: "contacts",
   });
 
-  const handleAdd = () => {
-    append(draft);
+  const handleSave = () => {
+    if (editingIndex === null) {
+      append(draft);
+    } else {
+      update(editingIndex, draft);
+    }
 
     setDraft({
       name: "",
@@ -36,7 +40,22 @@ export default function CustomerContactsSection({ form, readOnly = false }: Prop
       email: "",
     });
 
+    setEditingIndex(null);
     setIsOpen(false);
+  };
+
+  const handleEdit = (index: number) => {
+    const contact = fields[index];
+
+    setDraft({
+      name: contact.name,
+      title: contact.title,
+      phone: contact.phone,
+      email: contact.email,
+    });
+
+    setEditingIndex(index);
+    setIsOpen(true);
   };
 
   return (
@@ -52,7 +71,18 @@ export default function CustomerContactsSection({ form, readOnly = false }: Prop
           {!readOnly && (
             <button
               type="button"
-              onClick={() => setIsOpen(true)}
+              onClick={() => {
+                setEditingIndex(null);
+
+                setDraft({
+                  name: "",
+                  title: "",
+                  phone: "",
+                  email: "",
+                });
+
+                setIsOpen(true);
+              }}
               className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-slate-800"
             >
               <Plus size={16} />
@@ -84,13 +114,23 @@ export default function CustomerContactsSection({ form, readOnly = false }: Prop
 
                   {!readOnly && (
                     <TableCell>
-                      <button
-                        type="button"
-                        onClick={() => remove(index)}
-                        className="text-sm font-medium text-red-600 hover:text-red-700"
-                      >
-                        刪除
-                      </button>
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => handleEdit(index)}
+                          className="text-sm font-medium text-slate-700 hover:text-slate-900"
+                        >
+                          編輯
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => remove(index)}
+                          className="text-sm font-medium text-red-600 hover:text-red-700"
+                        >
+                          刪除
+                        </button>
+                      </div>
                     </TableCell>
                   )}
                 </tr>
@@ -122,7 +162,9 @@ export default function CustomerContactsSection({ form, readOnly = false }: Prop
 
           <aside className="absolute right-0 top-0 h-full w-full max-w-lg overflow-y-auto bg-white shadow-xl">
             <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-              <h2 className="text-lg font-semibold text-slate-900">新增聯絡人</h2>
+              <h2 className="text-lg font-semibold text-slate-900">
+                {editingIndex === null ? "新增聯絡人" : "編輯聯絡人"}
+              </h2>
 
               <button
                 type="button"
@@ -199,10 +241,10 @@ export default function CustomerContactsSection({ form, readOnly = false }: Prop
 
               <button
                 type="button"
-                onClick={handleAdd}
+                onClick={handleSave}
                 className="rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-medium text-white"
               >
-                新增
+                {editingIndex === null ? "新增" : "儲存變更"}
               </button>
             </div>
           </aside>
