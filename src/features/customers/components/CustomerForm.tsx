@@ -62,19 +62,29 @@ export default function CustomerForm({ mode, form }: CustomerFormProps) {
 
           <FormField label="行業別">
             <select
+              {...register("industry")}
               disabled={readOnly}
               className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm"
             >
               <option value="">請選擇</option>
+              <option value="資訊服務業">資訊服務業</option>
+              <option value="製造業">製造業</option>
+              <option value="批發零售業">批發零售業</option>
+              <option value="專業服務業">專業服務業</option>
             </select>
           </FormField>
 
           <FormField label="組織類型">
             <select
+              {...register("organizationType")}
               disabled={readOnly}
               className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm"
             >
               <option value="">請選擇</option>
+              <option value="股份有限公司">股份有限公司</option>
+              <option value="有限公司">有限公司</option>
+              <option value="行號">行號</option>
+              <option value="其他">其他</option>
             </select>
           </FormField>
 
@@ -118,10 +128,16 @@ export default function CustomerForm({ mode, form }: CustomerFormProps) {
 
           <FormField label="所屬國稅局">
             <select
+              {...register("taxBureau")}
               disabled={readOnly}
               className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm"
             >
               <option value="">請選擇</option>
+              <option value="財政部臺北國稅局">財政部臺北國稅局</option>
+              <option value="財政部北區國稅局">財政部北區國稅局</option>
+              <option value="財政部中區國稅局">財政部中區國稅局</option>
+              <option value="財政部南區國稅局">財政部南區國稅局</option>
+              <option value="財政部高雄國稅局">財政部高雄國稅局</option>
             </select>
           </FormField>
         </div>
