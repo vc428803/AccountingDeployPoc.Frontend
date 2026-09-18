@@ -1,67 +1,92 @@
-import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
-import CustomerBasicInfo from "../components/CustomerBasicInfo";
-import CustomerEngagementHistory from "../components/CustomerEngagementHistory";
-
-type TabType = "basic" | "engagements";
+import { useState } from "react";
+import CustomerForm from "../components/CustomerForm";
+import type { CustomerFormValues } from "../schemas/customerSchema";
 
 export default function CustomerDetailPage() {
   const { customerId } = useParams();
-  const [activeTab, setActiveTab] = useState<TabType>("basic");
+  const originalCustomerData: CustomerFormValues = {
+    customerNo: customerId ?? "",
+    customerName: "瀚宇科技股份有限公司",
+    uniformNo: "87654321",
+    taxRegistrationNo: "987654321",
+    industry: "資訊服務業",
+    organizationType: "股份有限公司",
+    organizationSubType: "一般企業",
+    registeredAddress: "新北市板橋區中山路一段100號10樓",
+    contactAddress: "新北市板橋區中山路一段100號10樓",
+    responsiblePerson: "張志豪",
+    taxBureau: "財政部北區國稅局",
+    contacts: [
+      {
+        name: "陳怡君",
+        title: "財務經理",
+        phone: "02-2955-8899",
+        email: "yijun.chen@example.com",
+      },
+    ],
+  };
+  const [isEditing, setIsEditing] = useState(false);
+  const [customerData, setCustomerData] = useState<CustomerFormValues>(originalCustomerData);
+  const form = useForm<CustomerFormValues>({
+    defaultValues: customerData,
+  });
 
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-sm text-slate-500">
-          客戶管理 / 客戶詳細資料
-        </p>
+        <p className="text-sm text-slate-500">客戶管理 / {customerId}</p>
 
-        <h1 className="mt-1 text-2xl font-semibold text-slate-900">
-          客戶詳細資料
-        </h1>
+        <div className="mt-1 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold text-slate-900">客戶資料</h1>
 
-        <p className="mt-1 text-sm text-slate-500">
-          客戶編號：{customerId}
-        </p>
-      </div>
-
-      <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div className="border-b border-slate-200 px-5">
-          <div className="flex gap-6">
-            <button
-              type="button"
-              onClick={() => setActiveTab("basic")}
-              className={
-                activeTab === "basic"
-                  ? "border-b-2 border-blue-600 px-1 py-4 text-sm font-medium text-blue-600"
-                  : "px-1 py-4 text-sm font-medium text-slate-500 hover:text-slate-900"
-              }
-            >
-              基本資料
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab("engagements")}
-              className={
-                activeTab === "engagements"
-                  ? "border-b-2 border-blue-600 px-1 py-4 text-sm font-medium text-blue-600"
-                  : "px-1 py-4 text-sm font-medium text-slate-500 hover:text-slate-900"
-              }
-            >
-              委任 / 案件紀錄
-            </button>
+            <p className="mt-1 text-sm text-slate-500">客戶編號：{customerId}</p>
           </div>
-        </div>
 
-        <div className="p-5 sm:p-6">
-          {activeTab === "basic" && <CustomerBasicInfo />}
+          {!isEditing && (
+            <button
+              type="button"
+              onClick={() => setIsEditing(true)}
+              className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            >
+              編輯資料
+            </button>
+          )}
+          {isEditing && (
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  form.reset(customerData);
+                  setIsEditing(false);
+                }}
+                className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              >
+                取消修改
+              </button>
 
-          {activeTab === "engagements" && customerId && (
-            <CustomerEngagementHistory customerId={customerId} />
+              <button
+                type="button"
+                onClick={form.handleSubmit((data) => {
+                  console.log("Updated Customer:", data);
+
+                  setCustomerData(data);
+                  form.reset(data);
+
+                  setIsEditing(false);
+                })}
+                className="rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-slate-800"
+              >
+                儲存修改
+              </button>
+            </div>
           )}
         </div>
-      </section>
+      </div>
+
+      <CustomerForm mode={isEditing ? "edit" : "view"} form={form} />
     </div>
   );
 }

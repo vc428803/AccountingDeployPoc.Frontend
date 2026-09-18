@@ -1,10 +1,11 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
+import { useNavigate } from "react-router-dom";
 import CustomerForm from "../components/CustomerForm";
 import { customerSchema, type CustomerFormValues } from "../schemas/customerSchema";
 
 export default function CustomerCreatePage() {
+  const navigate = useNavigate();
   const form = useForm<CustomerFormValues>({
     resolver: zodResolver(customerSchema),
 
@@ -28,6 +29,11 @@ export default function CustomerCreatePage() {
 
   const onSubmit = (data: CustomerFormValues) => {
     console.log("Customer Form Data:", data);
+
+    // 目前先模擬新增成功
+    const mockCustomerId = "C20260002";
+
+    navigate(`/customers/${mockCustomerId}`);
   };
 
   return (
@@ -45,6 +51,7 @@ export default function CustomerCreatePage() {
       <div className="flex justify-end gap-3">
         <button
           type="button"
+          onClick={() => navigate("/customers")}
           className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
         >
           取消
