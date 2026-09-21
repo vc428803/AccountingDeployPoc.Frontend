@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import ContractDetailDrawer from "../../contracts/components/ContractDetailDrawer";
 
 type ContractService = {
@@ -318,6 +319,8 @@ const mockContractDetails: ContractDetail[] = [
 ];
 
 export default function CustomerContractHistory() {
+  const navigate = useNavigate();
+  const { customerId } = useParams();
   const [selectedContractNo, setSelectedContractNo] = useState<string | null>(null);
   const contracts = [...mockContracts].sort(
     (a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime(),
@@ -338,6 +341,7 @@ export default function CustomerContractHistory() {
 
           <button
             type="button"
+            onClick={() => navigate(`/customers/${customerId}/contracts/new`)}
             className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700"
           >
             ＋ 新增案件

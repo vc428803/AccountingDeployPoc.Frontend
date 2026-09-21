@@ -3,6 +3,7 @@ import MainLayout from "../layouts/MainLayout";
 import CustomerListPage from "../features/customers/pages/CustomerListPage";
 import CustomerDetailPage from "../features/customers/pages/CustomerDetailPage";
 import CustomerCreatePage from "../features/customers/pages/CustomerCreatePage";
+import ContractCreatePage from "../features/contracts/pages/ContractCreatePage";
 
 export const router = createBrowserRouter([
   {
@@ -18,12 +19,17 @@ export const router = createBrowserRouter([
         element: <CustomerListPage />,
       },
       {
-  path: "customers/:customerId",
-  element: <CustomerDetailPage />,
-},{
-  path: "customers/new",
-  element: <CustomerCreatePage />,
-},
+        path: "customers/:customerId",
+        element: <CustomerDetailPage />,
+      },
+      {
+        path: "customers/new",
+        element: <CustomerCreatePage />,
+      },
+      {
+        path: "/customers/:customerId/contracts/new",
+        element: <ContractCreatePage />,
+      },
     ],
   },
 ]);
