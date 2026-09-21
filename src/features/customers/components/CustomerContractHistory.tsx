@@ -2,6 +2,47 @@ import { useState } from "react";
 import ContractDetailDrawer from "../../contracts/components/ContractDetailDrawer";
 
 type ContractService = {
+  id: string;
+  code: string;
+  category: string;
+  description: string;
+  fee: number;
+  auditType: "審計" | "非審計";
+};
+
+type ResponsibilityAssignment = {
+  id: string;
+  role: "lead" | "secondary";
+
+  scopeType: "contract" | "service";
+
+  serviceId?: string;
+
+  quarter?: 1 | 2 | 3 | 4;
+
+  accountantId: string;
+  accountantName: string;
+};
+
+type ContractDetail = {
+  contractNo: string;
+  customerNo: string;
+  customerName: string;
+
+  startDate: string;
+  endDate: string;
+
+  engagementType: string;
+  engagementStatus: string;
+  acceptingAccountant: string;
+  paymentNote: string;
+
+  services: ContractService[];
+
+  assignments: ResponsibilityAssignment[];
+};
+
+type ContractServiceSummary = {
   code: string;
   name: string;
 };
@@ -10,7 +51,7 @@ type CustomerContract = {
   contractNo: string;
   startDate: string;
   endDate: string;
-  services: ContractService[];
+  services: ContractServiceSummary[];
   leadAccountant: string;
   secondaryAccountant: string;
 };
@@ -52,45 +93,7 @@ const mockContracts: CustomerContract[] = [
   },
 ];
 
-const mockContractDetail = {
-  contractNo: "CT-2026-0012",
-  customerName: "瀚宇科技股份有限公司",
-  customerNo: "C0001",
-  startDate: "2026/01/01",
-  endDate: "2026/12/31",
-  engagementType: "一般委任",
-  acceptingAccountant: "林柏宇",
-  leadAccountant: "王大明",
-  secondaryAccountant: "李佳穎",
-  engagementStatus: "進行中",
-  paymentNote: "依合約分期收款",
-
-  services: [
-    {
-      code: "A1",
-      category: "審計服務",
-      description: "財務報表查核",
-      fee: 120000,
-      auditType: "審計" as const,
-    },
-    {
-      code: "B2",
-      category: "稅務服務",
-      description: "稅務簽證",
-      fee: 80000,
-      auditType: "非審計" as const,
-    },
-    {
-      code: "C3",
-      category: "顧問服務",
-      description: "財務諮詢",
-      fee: 60000,
-      auditType: "非審計" as const,
-    },
-  ],
-};
-
-const mockContractDetails = [
+const mockContractDetails: ContractDetail[] = [
   {
     contractNo: "CT-2026-0012",
     customerName: "瀚宇科技股份有限公司",
@@ -99,12 +102,12 @@ const mockContractDetails = [
     endDate: "2026/12/31",
     engagementType: "一般委任",
     acceptingAccountant: "林柏宇",
-    leadAccountant: "王大明",
-    secondaryAccountant: "李佳穎",
     engagementStatus: "進行中",
     paymentNote: "依合約分期收款",
+
     services: [
       {
+        id: "S2026-001",
         code: "A1",
         category: "審計服務",
         description: "財務報表查核",
@@ -112,6 +115,7 @@ const mockContractDetails = [
         auditType: "審計" as const,
       },
       {
+        id: "S2026-002",
         code: "B2",
         category: "稅務服務",
         description: "稅務簽證",
@@ -119,6 +123,7 @@ const mockContractDetails = [
         auditType: "非審計" as const,
       },
       {
+        id: "S2026-003",
         code: "C3",
         category: "顧問服務",
         description: "財務諮詢",
@@ -126,7 +131,75 @@ const mockContractDetails = [
         auditType: "非審計" as const,
       },
     ],
+
+    assignments: [
+      {
+        id: "A2026-001",
+        role: "lead" as const,
+        scopeType: "contract" as const,
+        quarter: 1 as const,
+        accountantId: "ACC001",
+        accountantName: "王大明",
+      },
+      {
+        id: "A2026-002",
+        role: "secondary" as const,
+        scopeType: "contract" as const,
+        quarter: 1 as const,
+        accountantId: "ACC002",
+        accountantName: "李佳穎",
+      },
+      {
+        id: "A2026-003",
+        role: "lead" as const,
+        scopeType: "contract" as const,
+        quarter: 2 as const,
+        accountantId: "ACC001",
+        accountantName: "王大明",
+      },
+      {
+        id: "A2026-004",
+        role: "secondary" as const,
+        scopeType: "contract" as const,
+        quarter: 2 as const,
+        accountantId: "ACC002",
+        accountantName: "李佳穎",
+      },
+      {
+        id: "A2026-005",
+        role: "lead" as const,
+        scopeType: "contract" as const,
+        quarter: 3 as const,
+        accountantId: "ACC001",
+        accountantName: "王大明",
+      },
+      {
+        id: "A2026-006",
+        role: "secondary" as const,
+        scopeType: "contract" as const,
+        quarter: 3 as const,
+        accountantId: "ACC002",
+        accountantName: "李佳穎",
+      },
+      {
+        id: "A2026-007",
+        role: "lead" as const,
+        scopeType: "contract" as const,
+        quarter: 4 as const,
+        accountantId: "ACC001",
+        accountantName: "王大明",
+      },
+      {
+        id: "A2026-008",
+        role: "secondary" as const,
+        scopeType: "contract" as const,
+        quarter: 4 as const,
+        accountantId: "ACC002",
+        accountantName: "李佳穎",
+      },
+    ],
   },
+
   {
     contractNo: "CT-2025-0108",
     customerName: "瀚宇科技股份有限公司",
@@ -135,12 +208,12 @@ const mockContractDetails = [
     endDate: "2025/12/31",
     engagementType: "一般委任",
     acceptingAccountant: "林柏宇",
-    leadAccountant: "王大明",
-    secondaryAccountant: "陳冠廷",
     engagementStatus: "完成",
     paymentNote: "已完成收款",
+
     services: [
       {
+        id: "S2025-001",
         code: "A1",
         category: "審計服務",
         description: "財務報表查核",
@@ -148,11 +221,79 @@ const mockContractDetails = [
         auditType: "審計" as const,
       },
       {
+        id: "S2025-002",
         code: "B2",
         category: "稅務服務",
         description: "稅務簽證",
         fee: 75000,
         auditType: "非審計" as const,
+      },
+    ],
+
+    assignments: [
+      {
+        id: "A2025-001",
+        role: "lead" as const,
+        scopeType: "contract" as const,
+        quarter: 1 as const,
+        accountantId: "ACC001",
+        accountantName: "王大明",
+      },
+      {
+        id: "A2025-002",
+        role: "secondary" as const,
+        scopeType: "contract" as const,
+        quarter: 1 as const,
+        accountantId: "ACC003",
+        accountantName: "陳冠廷",
+      },
+      {
+        id: "A2025-003",
+        role: "lead" as const,
+        scopeType: "contract" as const,
+        quarter: 2 as const,
+        accountantId: "ACC001",
+        accountantName: "王大明",
+      },
+      {
+        id: "A2025-004",
+        role: "secondary" as const,
+        scopeType: "contract" as const,
+        quarter: 2 as const,
+        accountantId: "ACC003",
+        accountantName: "陳冠廷",
+      },
+      {
+        id: "A2025-005",
+        role: "lead" as const,
+        scopeType: "contract" as const,
+        quarter: 3 as const,
+        accountantId: "ACC001",
+        accountantName: "王大明",
+      },
+      {
+        id: "A2025-006",
+        role: "secondary" as const,
+        scopeType: "contract" as const,
+        quarter: 3 as const,
+        accountantId: "ACC003",
+        accountantName: "陳冠廷",
+      },
+      {
+        id: "A2025-007",
+        role: "lead" as const,
+        scopeType: "contract" as const,
+        quarter: 4 as const,
+        accountantId: "ACC001",
+        accountantName: "王大明",
+      },
+      {
+        id: "A2025-008",
+        role: "secondary" as const,
+        scopeType: "contract" as const,
+        quarter: 4 as const,
+        accountantId: "ACC003",
+        accountantName: "陳冠廷",
       },
     ],
   },
@@ -186,67 +327,63 @@ export default function CustomerContractHistory() {
         </div>
 
         <div className="mt-6 overflow-x-auto rounded-lg border border-slate-200">
-          <table className="min-w-[920px] w-full">
-            <div className="mt-6 overflow-x-auto rounded-lg border border-slate-200">
-              <table className="w-full min-w-[920px]">
-                <thead className="bg-slate-50">
-                  <tr className="border-b border-slate-200">
-                    <TableHead>合約編號</TableHead>
-                    <TableHead>委任期間</TableHead>
-                    <TableHead>服務項目摘要</TableHead>
-                    <TableHead>主簽會計師</TableHead>
-                    <TableHead>副簽會計師</TableHead>
-                    <TableHead>操作</TableHead>
-                  </tr>
-                </thead>
+          <table className="w-full min-w-[920px]">
+            <thead className="bg-slate-50">
+              <tr className="border-b border-slate-200">
+                <TableHead>合約編號</TableHead>
+                <TableHead>委任期間</TableHead>
+                <TableHead>服務項目摘要</TableHead>
+                <TableHead>主簽會計師</TableHead>
+                <TableHead>副簽會計師</TableHead>
+                <TableHead>操作</TableHead>
+              </tr>
+            </thead>
 
-                <tbody className="divide-y divide-slate-100">
-                  {contracts.map((contract) => (
-                    <tr key={contract.contractNo} className="hover:bg-slate-50">
-                      <TableCell>
-                        <span className="font-medium text-slate-900">{contract.contractNo}</span>
-                      </TableCell>
+            <tbody className="divide-y divide-slate-100">
+              {contracts.map((contract) => (
+                <tr key={contract.contractNo} className="hover:bg-slate-50">
+                  <TableCell>
+                    <span className="font-medium text-slate-900">{contract.contractNo}</span>
+                  </TableCell>
 
-                      <TableCell>
-                        <div className="whitespace-nowrap">{contract.startDate}</div>
+                  <TableCell>
+                    <div className="whitespace-nowrap">{contract.startDate}</div>
 
-                        <div className="mt-1 whitespace-nowrap text-xs text-slate-400">
-                          ～ {contract.endDate}
+                    <div className="mt-1 whitespace-nowrap text-xs text-slate-400">
+                      ～ {contract.endDate}
+                    </div>
+                  </TableCell>
+
+                  <TableCell>
+                    <div className="space-y-2">
+                      {contract.services.map((service) => (
+                        <div key={service.code} className="flex items-center gap-2">
+                          <span className="inline-flex min-w-9 justify-center rounded-md bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700">
+                            {service.code}
+                          </span>
+
+                          <span className="text-xs text-slate-600">{service.name}</span>
                         </div>
-                      </TableCell>
+                      ))}
+                    </div>
+                  </TableCell>
 
-                      <TableCell>
-                        <div className="space-y-2">
-                          {contract.services.map((service) => (
-                            <div key={service.code} className="flex items-center gap-2">
-                              <span className="inline-flex min-w-9 justify-center rounded-md bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700">
-                                {service.code}
-                              </span>
+                  <TableCell>{contract.leadAccountant}</TableCell>
 
-                              <span className="text-xs text-slate-600">{service.name}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </TableCell>
+                  <TableCell>{contract.secondaryAccountant}</TableCell>
 
-                      <TableCell>{contract.leadAccountant}</TableCell>
-
-                      <TableCell>{contract.secondaryAccountant}</TableCell>
-
-                      <TableCell>
-                        <button
-                          type="button"
-                          onClick={() => setSelectedContractNo(contract.contractNo)}
-                          className="text-sm font-medium text-blue-600 hover:text-blue-700"
-                        >
-                          查看
-                        </button>
-                      </TableCell>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  <TableCell>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedContractNo(contract.contractNo)}
+                      className="text-sm font-medium text-blue-600 hover:text-blue-700"
+                    >
+                      查看
+                    </button>
+                  </TableCell>
+                </tr>
+              ))}
+            </tbody>
           </table>
         </div>
 

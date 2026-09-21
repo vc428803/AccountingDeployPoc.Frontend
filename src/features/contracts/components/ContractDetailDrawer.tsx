@@ -1,4 +1,5 @@
-type ContractServiceDetail = {
+type ContractService = {
+  id: string;
   code: string;
   category: string;
   description: string;
@@ -6,19 +7,40 @@ type ContractServiceDetail = {
   auditType: "審計" | "非審計";
 };
 
+type ResponsibilityAssignment = {
+  id: string;
+
+  role: "lead" | "secondary";
+
+  scopeType: "contract" | "service";
+
+  serviceId?: string;
+
+  quarter?: 1 | 2 | 3 | 4;
+
+  accountantId: string;
+  accountantName: string;
+};
+
 type ContractDetail = {
   contractNo: string;
+
   customerName: string;
   customerNo: string;
+
   startDate: string;
   endDate: string;
+
   engagementType: string;
-  acceptingAccountant: string;
-  leadAccountant: string;
-  secondaryAccountant: string;
   engagementStatus: string;
+
+  acceptingAccountant: string;
+
   paymentNote: string;
-  services: ContractServiceDetail[];
+
+  services: ContractService[];
+
+  assignments: ResponsibilityAssignment[];
 };
 
 type Props = {
@@ -31,6 +53,25 @@ export default function ContractDetailDrawer({ open, contract, onClose }: Props)
   if (!open || !contract) {
     return null;
   }
+
+  const getAssignment = (role: "lead" | "secondary", quarter?: 1 | 2 | 3 | 4) => {
+    return contract.assignments.find(
+      (assignment) =>
+        assignment.role === role &&
+        assignment.scopeType === "contract" &&
+        assignment.quarter === quarter,
+    );
+  };
+
+  const leadAccountant =
+    contract.assignments.find(
+      (assignment) => assignment.role === "lead" && assignment.scopeType === "contract",
+    )?.accountantName ?? "-";
+
+  const secondaryAccountant =
+    contract.assignments.find(
+      (assignment) => assignment.role === "secondary" && assignment.scopeType === "contract",
+    )?.accountantName ?? "-";
 
   return (
     <div className="fixed inset-0 z-50">
@@ -78,9 +119,9 @@ export default function ContractDetailDrawer({ open, contract, onClose }: Props)
 
               <InfoRow label="接案會計師" value={contract.acceptingAccountant} />
 
-              <InfoRow label="主簽會計師" value={contract.leadAccountant} highlight />
+              <InfoRow label="主簽會計師" value={leadAccountant} highlight />
 
-              <InfoRow label="副簽會計師" value={contract.secondaryAccountant} highlight />
+              <InfoRow label="副簽會計師" value={secondaryAccountant} highlight />
 
               <InfoRow label="委任狀態" value={contract.engagementStatus} />
 
@@ -94,7 +135,7 @@ export default function ContractDetailDrawer({ open, contract, onClose }: Props)
             </h3>
 
             <div className="mt-4 overflow-x-auto rounded-lg border border-slate-200">
-              <table className="min-w-[700px] w-full">
+              <table className="w-full min-w-[700px]">
                 <thead className="bg-slate-50">
                   <tr>
                     <TableHead>服務代碼</TableHead>
@@ -107,7 +148,7 @@ export default function ContractDetailDrawer({ open, contract, onClose }: Props)
 
                 <tbody className="divide-y divide-slate-100">
                   {contract.services.map((service) => (
-                    <tr key={service.code}>
+                    <tr key={service.id}>
                       <TableCell>
                         <span className="font-semibold text-blue-700">{service.code}</span>
                       </TableCell>
@@ -138,7 +179,7 @@ export default function ContractDetailDrawer({ open, contract, onClose }: Props)
             </h3>
 
             <div className="mt-4 overflow-x-auto rounded-lg border border-slate-200">
-              <table className="min-w-[600px] w-full">
+              <table className="w-full min-w-[600px]">
                 <thead className="bg-slate-50">
                   <tr>
                     <TableHead>角色</TableHead>
@@ -152,18 +193,26 @@ export default function ContractDetailDrawer({ open, contract, onClose }: Props)
                 <tbody>
                   <tr className="border-b border-slate-100">
                     <TableCell>主簽會計師</TableCell>
-                    <TableCell>{contract.leadAccountant}</TableCell>
-                    <TableCell>{contract.leadAccountant}</TableCell>
-                    <TableCell>{contract.leadAccountant}</TableCell>
-                    <TableCell>{contract.leadAccountant}</TableCell>
+
+                    <TableCell>{getAssignment("lead", 1)?.accountantName ?? "-"}</TableCell>
+
+                    <TableCell>{getAssignment("lead", 2)?.accountantName ?? "-"}</TableCell>
+
+                    <TableCell>{getAssignment("lead", 3)?.accountantName ?? "-"}</TableCell>
+
+                    <TableCell>{getAssignment("lead", 4)?.accountantName ?? "-"}</TableCell>
                   </tr>
 
                   <tr>
                     <TableCell>副簽會計師</TableCell>
-                    <TableCell>{contract.secondaryAccountant}</TableCell>
-                    <TableCell>{contract.secondaryAccountant}</TableCell>
-                    <TableCell>{contract.secondaryAccountant}</TableCell>
-                    <TableCell>{contract.secondaryAccountant}</TableCell>
+
+                    <TableCell>{getAssignment("secondary", 1)?.accountantName ?? "-"}</TableCell>
+
+                    <TableCell>{getAssignment("secondary", 2)?.accountantName ?? "-"}</TableCell>
+
+                    <TableCell>{getAssignment("secondary", 3)?.accountantName ?? "-"}</TableCell>
+
+                    <TableCell>{getAssignment("secondary", 4)?.accountantName ?? "-"}</TableCell>
                   </tr>
                 </tbody>
               </table>
