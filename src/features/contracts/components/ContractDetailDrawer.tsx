@@ -1,3 +1,4 @@
+import { Info } from "lucide-react";
 type ContractService = {
   id: string;
   code: string;
@@ -54,7 +55,33 @@ export default function ContractDetailDrawer({ open, contract, onClose }: Props)
     return null;
   }
 
-  const getAssignment = (role: "lead" | "secondary", quarter?: 1 | 2 | 3 | 4) => {
+  // 責任人解析規則：
+  // 1. 若有指定 serviceId，優先尋找該服務自己的責任人設定。
+  // 2. 若該服務沒有個別設定，才回退使用合約層級的責任人。
+  // 3. 這個設計是為了同時兼容：
+  //    - 整份合約共用主簽 / 副簽
+  //    - 每個服務各自指定主簽 / 副簽
+  //    - 合約共用 + 個別服務例外的混合模式
+  // 4. 此函式只負責「解析並顯示責任分配」，不代表實際簽核流程。
+  const getAssignment = (
+    role: "lead" | "secondary",
+    quarter?: 1 | 2 | 3 | 4,
+    serviceId?: string,
+  ) => {
+    if (serviceId) {
+      const serviceAssignment = contract.assignments.find(
+        (assignment) =>
+          assignment.role === role &&
+          assignment.scopeType === "service" &&
+          assignment.serviceId === serviceId &&
+          assignment.quarter === quarter,
+      );
+
+      if (serviceAssignment) {
+        return serviceAssignment;
+      }
+    }
+
     return contract.assignments.find(
       (assignment) =>
         assignment.role === role &&
@@ -143,6 +170,8 @@ export default function ContractDetailDrawer({ open, contract, onClose }: Props)
                     <TableHead>子分類 / 說明</TableHead>
                     <TableHead>公費金額</TableHead>
                     <TableHead>審計 / 非審計</TableHead>
+                    <TableHead>Q4 主簽</TableHead>
+                    <TableHead>Q4 副簽</TableHead>
                   </tr>
                 </thead>
 
@@ -166,6 +195,14 @@ export default function ContractDetailDrawer({ open, contract, onClose }: Props)
                       </TableCell>
 
                       <TableCell>{service.auditType}</TableCell>
+
+                      <TableCell>
+                        {getAssignment("lead", 4, service.id)?.accountantName ?? "-"}
+                      </TableCell>
+
+                      <TableCell>
+                        {getAssignment("secondary", 4, service.id)?.accountantName ?? "-"}
+                      </TableCell>
                     </tr>
                   ))}
                 </tbody>
@@ -174,9 +211,19 @@ export default function ContractDetailDrawer({ open, contract, onClose }: Props)
           </section>
 
           <section>
-            <h3 className="border-l-4 border-blue-600 pl-3 text-sm font-semibold text-slate-900">
-              Q1 ~ Q4 主簽 / 副簽責任分配
-            </h3>
+            <div className="flex items-center gap-2">
+              <h3 className="border-l-4 border-blue-600 pl-3 text-sm font-semibold text-slate-900">
+                合約層級 Q1 ~ Q4 主簽 / 副簽責任分配
+              </h3>
+
+              <div className="group relative">
+                <Info className="h-4 w-4 cursor-help text-slate-400" />
+
+                <div className="pointer-events-none absolute left-1/2 top-6 z-30 hidden w-72 -translate-x-1/2 rounded-lg border border-slate-200 bg-white p-3 text-xs leading-5 text-slate-600 shadow-lg group-hover:block">
+                  此區顯示整份合約各季度的主簽／副簽責任人。若個別服務另有指定負責會計師，則以該服務實際指定的人員為準。
+                </div>
+              </div>
+            </div>
 
             <div className="mt-4 overflow-x-auto rounded-lg border border-slate-200">
               <table className="w-full min-w-[600px]">
@@ -192,7 +239,9 @@ export default function ContractDetailDrawer({ open, contract, onClose }: Props)
 
                 <tbody>
                   <tr className="border-b border-slate-100">
-                    <TableCell>主簽會計師</TableCell>
+                    <TableCell>
+                      <span className="font-medium text-slate-900">主簽會計師</span>
+                    </TableCell>
 
                     <TableCell>{getAssignment("lead", 1)?.accountantName ?? "-"}</TableCell>
 
@@ -204,7 +253,9 @@ export default function ContractDetailDrawer({ open, contract, onClose }: Props)
                   </tr>
 
                   <tr>
-                    <TableCell>副簽會計師</TableCell>
+                    <TableCell>
+                      <span className="font-medium text-slate-900">副簽會計師</span>
+                    </TableCell>
 
                     <TableCell>{getAssignment("secondary", 1)?.accountantName ?? "-"}</TableCell>
 
