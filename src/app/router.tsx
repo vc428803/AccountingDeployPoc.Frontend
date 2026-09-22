@@ -4,6 +4,7 @@ import CustomerListPage from "../features/customers/pages/CustomerListPage";
 import CustomerDetailPage from "../features/customers/pages/CustomerDetailPage";
 import CustomerCreatePage from "../features/customers/pages/CustomerCreatePage";
 import ContractCreatePage from "../features/contracts/pages/ContractCreatePage";
+import WorkTrackingPage from "../features/contracts/pages/WorkTrackingPage";
 
 export const router = createBrowserRouter([
   {
@@ -29,6 +30,10 @@ export const router = createBrowserRouter([
       {
         path: "/customers/:customerId/contracts/new",
         element: <ContractCreatePage />,
+      },
+      {
+        path: "/work-tracking",
+        element: <WorkTrackingPage />,
       },
     ],
   },
