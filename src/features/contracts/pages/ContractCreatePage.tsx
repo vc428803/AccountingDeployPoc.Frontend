@@ -5,6 +5,7 @@ import ServiceSearchSection, { type ServiceCatalogItem } from "../components/Ser
 import SelectedServicesTable, {
   type SelectedServiceItem,
 } from "../components/SelectedServicesTable";
+import ContractBasicInfoSection from "../components/ContractBasicInfoSection";
 
 const mockLeadSigners: SignerOption[] = [
   {
@@ -73,6 +74,15 @@ export default function ContractCreatePage() {
   const navigate = useNavigate();
   const { customerId } = useParams();
   const [selectedServices, setSelectedServices] = useState<SelectedServiceItem[]>([]);
+  const [contractBasicInfo, setContractBasicInfo] = useState({
+    contractNo: "",
+    status: "",
+    startDate: "",
+    endDate: "",
+    engagementType: "",
+    acceptingAccountant: "",
+    paymentNote: "",
+  });
 
   const handleAddService = (service: ServiceCatalogItem) => {
     setSelectedServices((current) => {
@@ -91,6 +101,36 @@ export default function ContractCreatePage() {
         },
       ];
     });
+  };
+
+  const handleChangeServiceFee = (id: string, value: number | "") => {
+    setSelectedServices((current) =>
+      current.map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              estimatedFee: value,
+            }
+          : item,
+      ),
+    );
+  };
+
+  const handleChangeServiceNote = (id: string, value: string) => {
+    setSelectedServices((current) =>
+      current.map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              note: value,
+            }
+          : item,
+      ),
+    );
+  };
+
+  const handleRemoveService = (id: string) => {
+    setSelectedServices((current) => current.filter((item) => item.id !== id));
   };
   return (
     <div className="space-y-6">
@@ -119,14 +159,7 @@ export default function ContractCreatePage() {
         <p className="mt-2 text-sm text-slate-500">客戶編號：{customerId}</p>
       </section>
 
-      {/* 委任基本資料 */}
-      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-        <h2 className="text-base font-semibold text-slate-900">委任基本資料</h2>
-
-        <p className="mt-2 text-sm text-slate-400">
-          下一步加入合約編號、委任期間、委任性質、接案會計師等欄位。
-        </p>
-      </section>
+      <ContractBasicInfoSection value={contractBasicInfo} onChange={setContractBasicInfo} />
 
       {/* 主簽 / 副簽人員設定 */}
       <SignerAssignmentSection
@@ -136,7 +169,12 @@ export default function ContractCreatePage() {
 
       <ServiceSearchSection services={mockServiceCatalog} onAddService={handleAddService} />
 
-      <SelectedServicesTable services={selectedServices} />
+      <SelectedServicesTable
+        services={selectedServices}
+        onChangeFee={handleChangeServiceFee}
+        onChangeNote={handleChangeServiceNote}
+        onRemove={handleRemoveService}
+      />
     </div>
   );
 }
