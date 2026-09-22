@@ -6,6 +6,7 @@ import SelectedServicesTable, {
   type SelectedServiceItem,
 } from "../components/SelectedServicesTable";
 import ContractBasicInfoSection from "../components/ContractBasicInfoSection";
+import ServiceDepartmentSection from "../components/ServiceDepartmentSection";
 
 const mockLeadSigners: SignerOption[] = [
   {
@@ -82,6 +83,12 @@ export default function ContractCreatePage() {
     engagementType: "",
     acceptingAccountant: "",
     paymentNote: "",
+  });
+  const [serviceDepartment, setServiceDepartment] = useState({
+    primaryDepartmentId: "",
+    primaryStaffId: "",
+    collaborationDepartmentId: "",
+    collaborationStaffId: "",
   });
 
   const handleAddService = (service: ServiceCatalogItem) => {
@@ -175,6 +182,32 @@ export default function ContractCreatePage() {
         onChangeNote={handleChangeServiceNote}
         onRemove={handleRemoveService}
       />
+
+      <ServiceDepartmentSection value={serviceDepartment} onChange={setServiceDepartment} />
+
+      <div className="flex flex-col-reverse gap-3 border-t border-slate-200 pt-5 sm:flex-row sm:justify-end">
+        <button
+          type="button"
+          onClick={() => navigate(`/customers/${customerId}`)}
+          className="rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+        >
+          取消
+        </button>
+
+        <button
+          type="button"
+          className="rounded-lg border border-blue-300 bg-white px-5 py-2.5 text-sm font-medium text-blue-600 hover:bg-blue-50"
+        >
+          暫存
+        </button>
+
+        <button
+          type="button"
+          className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700"
+        >
+          儲存案件
+        </button>
+      </div>
     </div>
   );
 }
