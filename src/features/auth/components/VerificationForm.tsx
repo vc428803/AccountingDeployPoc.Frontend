@@ -1,115 +1,114 @@
 import { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 type VerificationFormProps = {
+  email: string;
   onBack: () => void;
+  onSuccess: () => void;
 };
 
-export default function VerificationForm({ onBack }: VerificationFormProps) {
-  const [codes, setCodes] = useState(["", "", "", "", "", ""]);
-  const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
-  const navigate = useNavigate();
+const DEMO_CODE = "123456";
 
-  const handleChange = (index: number, value: string) => {
+export default function VerificationForm({ email, onBack, onSuccess }: VerificationFormProps) {
+  const [digits, setDigits] = useState(["", "", "", "", "", ""]);
+  const [error, setError] = useState("");
+
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  function handleChange(index: number, value: string) {
     const digit = value.replace(/\D/g, "").slice(-1);
 
-    const nextCodes = [...codes];
-    nextCodes[index] = digit;
+    const next = [...digits];
+    next[index] = digit;
+    setDigits(next);
 
-    setCodes(nextCodes);
-
-    // 輸入完成後，自動跳到下一格
-    if (digit && index < codes.length - 1) {
+    if (digit && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
-  };
+  }
 
-  const handleKeyDown = (index: number, event: React.KeyboardEvent<HTMLInputElement>) => {
-    // 當前格沒有值時按 Backspace，回到上一格
-    if (event.key === "Backspace" && !codes[index] && index > 0) {
+  function handleKeyDown(index: number, event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key === "Backspace" && !digits[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
-  };
+  }
 
-  const verificationCode = codes.join("");
-  const isComplete = verificationCode.length === 6;
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
 
-  const handleVerify = () => {
-    if (!isComplete) {
+    const code = digits.join("");
+
+    if (code.length !== 6) {
+      setError("請完整輸入 6 碼驗證碼");
       return;
     }
 
-    // Demo 固定驗證碼
-    if (verificationCode !== "123456") {
-      alert("驗證碼錯誤");
+    if (code !== DEMO_CODE) {
+      setError("驗證碼錯誤，請重新輸入");
       return;
     }
 
-    // Demo：驗證成功後進入 Dashboard
-    navigate("/dashboard");
-  };
+    setError("");
+    onSuccess();
+  }
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-      <button
-        type="button"
-        onClick={onBack}
-        className="text-sm font-medium text-blue-600 hover:text-blue-700"
-      >
-        ← 返回登入
-      </button>
+    <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+      <h2 className="text-2xl font-bold text-slate-900">Email 驗證</h2>
 
-      <div className="mt-6">
-        <h2 className="text-2xl font-semibold text-slate-900">輸入驗證碼</h2>
+      <p className="mt-2 text-sm leading-6 text-slate-500">
+        系統已將 6 碼驗證碼寄送至：
+        <br />
+        <span className="font-medium text-slate-700">{email}</span>
+      </p>
 
-        <p className="mt-2 text-sm leading-6 text-slate-500">
-          我們已將 6 位數驗證碼寄送至您的公司信箱
-        </p>
+      <form className="mt-8" onSubmit={handleSubmit}>
+        <label className="mb-3 block text-sm font-medium text-slate-700">驗證碼</label>
 
-        <p className="mt-1 text-sm font-medium text-slate-700">k***@bakertilly.com.tw</p>
-      </div>
+        <div className="grid grid-cols-6 gap-2">
+          {digits.map((digit, index) => (
+            <input
+              key={index}
+              ref={(element) => {
+                inputRefs.current[index] = element;
+              }}
+              type="text"
+              inputMode="numeric"
+              maxLength={1}
+              value={digit}
+              onChange={(event) => handleChange(index, event.target.value)}
+              onKeyDown={(event) => handleKeyDown(index, event)}
+              className="h-12 w-full rounded-lg border border-slate-300 text-center text-xl font-semibold outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            />
+          ))}
+        </div>
 
-      {/* OTP 6 格輸入 */}
-      <div className="mt-6 grid grid-cols-6 gap-2">
-        {codes.map((code, index) => (
-          <input
-            key={index}
-            ref={(element) => {
-              inputRefs.current[index] = element;
-            }}
-            value={code}
-            onChange={(event) => handleChange(index, event.target.value)}
-            onKeyDown={(event) => handleKeyDown(index, event)}
-            inputMode="numeric"
-            maxLength={1}
-            className="h-12 w-full rounded-lg border border-slate-300 text-center text-xl font-semibold text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-          />
-        ))}
-      </div>
+        {error && (
+          <div className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">{error}</div>
+        )}
 
-      <p className="mt-4 text-sm text-slate-500">驗證碼有效時間：10 分鐘</p>
+        <button
+          type="submit"
+          className="mt-6 w-full rounded-lg bg-blue-600 px-4 py-3 text-sm font-medium text-white hover:bg-blue-700"
+        >
+          驗證並登入系統
+        </button>
 
-      <button
-        type="button"
-        onClick={handleVerify}
-        disabled={!isComplete}
-        className={[
-          "mt-6 w-full rounded-lg px-4 py-2.5 text-sm font-medium text-white transition",
-          isComplete ? "bg-blue-600 hover:bg-blue-700" : "cursor-not-allowed bg-slate-300",
-        ].join(" ")}
-      >
-        確認驗證
-      </button>
+        <div className="mt-5 flex items-center justify-between text-sm">
+          <button
+            type="button"
+            onClick={onBack}
+            className="font-medium text-slate-500 hover:text-slate-700"
+          >
+            返回登入
+          </button>
 
-      <button
-        type="button"
-        onClick={() => {
-          console.log("resend verification code");
-        }}
-        className="mt-3 w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
-      >
-        重新寄送驗證碼
-      </button>
+          <button type="button" className="font-medium text-blue-600 hover:text-blue-700">
+            重新寄送驗證碼
+          </button>
+        </div>
+
+        <p className="mt-5 text-xs text-slate-400">Demo 驗證碼：123456</p>
+      </form>
     </div>
   );
 }
