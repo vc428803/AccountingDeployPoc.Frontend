@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 type PendingContract = {
   id: string;
@@ -35,6 +36,7 @@ const mockContracts: PendingContract[] = [
 ];
 
 export default function PendingContractApprovalSection() {
+  const navigate = useNavigate();
   const [selectedContract, setSelectedContract] = useState<PendingContract | null>(null);
 
   return (
@@ -97,13 +99,23 @@ export default function PendingContractApprovalSection() {
                 </td>
 
                 <td className="px-4 py-4">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedContract(contract)}
-                    className="rounded-lg border border-blue-200 px-3 py-2 font-medium text-blue-600 hover:bg-blue-50"
-                  >
-                    查看
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedContract(contract)}
+                      className="rounded-lg border border-blue-200 px-3 py-2 font-medium text-blue-600 hover:bg-blue-50"
+                    >
+                      查看
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => navigate(`/dashboard/contracts/${contract.id}/approval`)}
+                      className="rounded-lg bg-blue-600 px-3 py-2 font-medium text-white hover:bg-blue-700"
+                    >
+                      進入簽核
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

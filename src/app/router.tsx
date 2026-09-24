@@ -9,6 +9,7 @@ import CustomerCreatePage from "../features/customers/pages/CustomerCreatePage";
 import ContractCreatePage from "../features/contracts/pages/ContractCreatePage";
 import WorkTrackingPage from "../features/contracts/pages/WorkTrackingPage";
 import DashboardPage from "../features/dashboard/pages/DashboardPage";
+import ContractApprovalPage from "../features/dashboard/pages/ContractApprovalPage";
 
 export const router = createBrowserRouter([
   // 登入頁獨立
@@ -49,6 +50,10 @@ export const router = createBrowserRouter([
       {
         path: "work-tracking",
         element: <WorkTrackingPage />,
+      },
+      {
+        path: "/dashboard/contracts/:contractId/approval",
+        element: <ContractApprovalPage />,
       },
     ],
   },
